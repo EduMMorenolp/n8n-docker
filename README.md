@@ -33,3 +33,13 @@ http://localhost:5678
 ## URLs públicas
 - Local: http://localhost:5678
 - Pública: Ver en http://localhost:4040 (ngrok dashboard)
+
+## Configurar URL de Webhook
+1. Copia la URL HTTPS de ngrok dashboard
+2. Actualiza `WEBHOOK_URL` en docker-compose.yml
+3. Reinicia: `docker-compose restart n8n`
+
+## Solución rápida para webhooks
+Si cambias la URL de ngrok, actualiza estas variables:
+- `WEBHOOK_URL` en docker-compose.yml
+- `N8N_EDITOR_BASE_URL` en docker-compose.yml
