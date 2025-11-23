@@ -1,0 +1,14 @@
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Configuración de ngrok
+ngrok.yml
+
+# Datos de Docker
+*.log
+
+# Archivos temporales
+.DS_Store
+Thumbs.db
