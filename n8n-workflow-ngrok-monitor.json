@@ -1,0 +1,264 @@
+{
+  "name": "Monitor ngrok URL",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 * * *"
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Cron - Diario 12AM",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:4040/api/tunnels",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Obtener URL ngrok",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extraer URL HTTPS de ngrok\nconst tunnels = $input.first().json.tunnels;\nconst httpsUrl = tunnels.find(t => t.proto === 'https' && t.config.addr === 'n8n:5678')?.public_url;\n\nif (!httpsUrl) {\n  throw new Error('No se encontró túnel HTTPS de ngrok');\n}\n\nreturn { ngrok_url: httpsUrl };"
+      },
+      "id": "3",
+      "name": "Extraer URL HTTPS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.ngrok_url }}/healthz",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "4",
+      "name": "Verificar URL actual",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "1",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "notEqual"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5",
+      "name": "¿URL no funciona?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "command": "docker exec n8n-app sh -c 'echo \"N8N_WEBHOOK_URL={{ $('Extraer URL HTTPS').item.json.ngrok_url }}\" > /tmp/new_url && sed -i \"s|N8N_WEBHOOK_URL=.*|N8N_WEBHOOK_URL={{ $('Extraer URL HTTPS').item.json.ngrok_url }}|\" /opt/n8n/.env'",
+        "options": {}
+      },
+      "id": "6",
+      "name": "Actualizar .env",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1340, 180]
+    },
+    {
+      "parameters": {
+        "command": "docker restart n8n-app",
+        "options": {}
+      },
+      "id": "7",
+      "name": "Reiniciar n8n",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1560, 180]
+    },
+    {
+      "parameters": {
+        "jsCode": "const oldUrl = $env.N8N_WEBHOOK_URL || 'No definida';\nconst newUrl = $('Extraer URL HTTPS').item.json.ngrok_url;\nconst timestamp = new Date().toLocaleString('es-AR');\n\nreturn {\n  subject: '🔄 URL de n8n actualizada',\n  message: `La URL de n8n ha sido actualizada automáticamente:\n\n📅 Fecha: ${timestamp}\n🔗 URL anterior: ${oldUrl}\n🆕 URL nueva: ${newUrl}\n\n✅ El servicio ha sido reiniciado correctamente.`,\n  old_url: oldUrl,\n  new_url: newUrl,\n  timestamp: timestamp\n};"
+      },
+      "id": "8",
+      "name": "Preparar notificación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 180]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "url": "https://api.telegram.org/bot{{ $vars.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{ $vars.TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "HTML"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9",
+      "name": "Enviar notificación Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2000, 180]
+    },
+    {
+      "parameters": {
+        "jsCode": "const timestamp = new Date().toLocaleString('es-AR');\nconst currentUrl = $env.N8N_WEBHOOK_URL;\n\nreturn {\n  subject: '✅ URL de n8n funcionando correctamente',\n  message: `Verificación diaria completada:\n\n📅 Fecha: ${timestamp}\n🔗 URL actual: ${currentUrl}\n✅ Estado: Funcionando correctamente\n\nNo se requiere ninguna acción.`,\n  timestamp: timestamp\n};"
+      },
+      "id": "10",
+      "name": "URL OK - Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 420]
+    }
+  ],
+  "connections": {
+    "Cron - Diario 12AM": {
+      "main": [
+        [
+          {
+            "node": "Obtener URL ngrok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener URL ngrok": {
+      "main": [
+        [
+          {
+            "node": "Extraer URL HTTPS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer URL HTTPS": {
+      "main": [
+        [
+          {
+            "node": "Verificar URL actual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar URL actual": {
+      "main": [
+        [
+          {
+            "node": "¿URL no funciona?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿URL no funciona?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar .env",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "URL OK - Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar .env": {
+      "main": [
+        [
+          {
+            "node": "Reiniciar n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reiniciar n8n": {
+      "main": [
+        [
+          {
+            "node": "Preparar notificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar notificación": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificación Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
