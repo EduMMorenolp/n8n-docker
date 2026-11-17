@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo ========================================
-echo    Iniciando n8n + PostgreSQL + ngrok
+echo    Iniciando n8n + PostgreSQL + ngrok + Sandbox
 echo ========================================
 echo.
 
@@ -13,6 +13,7 @@ if %ERRORLEVEL% EQU 0 (
     echo.
     echo 📱 Accesos:
     echo    - n8n local:      http://localhost:5678
+    echo    - Sandbox API:    http://localhost:3200
     echo    - ngrok dashboard: http://localhost:4040
     echo.
     echo 🔗 Para obtener la URL publica:

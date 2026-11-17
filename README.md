@@ -57,6 +57,7 @@ cp ngrok_example.yml ngrok.yml
 |----------|-----------|--------|
 | n8n | http://localhost:5678 | 5678 |
 | PostgreSQL | localhost:5433 | 5433 |
+| Sandbox API | http://localhost:3200 | 3200 |
 | ngrok Dashboard | http://localhost:4040 | 4040 |
 
 ## 📋 Estructura del proyecto
@@ -90,6 +91,13 @@ N8N_TIMEZONE=America/Argentina/Buenos_Aires
 # ngrok
 NGROK_AUTHTOKEN=your_ngrok_auth_token_here
 N8N_WEBHOOK_URL=https://your-ngrok-url.ngrok-free.dev
+
+# n8n Sandbox
+N8N_SANDBOX_VERSION=1.8.1
+SANDBOX_PORT=3200
+SANDBOX_API_KEY=n8n_sandbox_secret_key_2026
+SANDBOX_REGISTRATION_TOKEN=n8n_sandbox_reg_token_2026
+SANDBOX_RUNNER_KEY=n8n_sandbox_runner_key_2026
 ```
 
 ### Actualizar URL de webhook
