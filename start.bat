@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo ========================================
-echo    Iniciando n8n + PostgreSQL + Sandbox
+echo    Iniciando n8n + Postgres + Sandbox + SearXNG
 echo ========================================
 echo.
 
@@ -13,6 +13,7 @@ if %ERRORLEVEL% EQU 0 (
     echo.
     echo 📱 Accesos:
     echo    - n8n local:      http://localhost:5678
+    echo    - SearXNG Search: http://localhost:8088
     echo    - Sandbox API:    http://localhost:3200
     echo.
     echo ℹ️ ngrok esta detenido por defecto. Para iniciarlo cuando configures ngrok.yml:

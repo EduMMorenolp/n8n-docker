@@ -60,6 +60,7 @@ cp ngrok_example.yml ngrok.yml
 |----------|-----------|--------|--------|
 | n8n | http://localhost:5678 | 5678 | Activo |
 | PostgreSQL | localhost:5433 | 5433 | Activo |
+| SearXNG (Web Search) | http://localhost:8088 | 8088 | Activo |
 | Sandbox API | http://localhost:3200 | 3200 | Activo |
 | ngrok Dashboard | http://localhost:4040 | 4040 | Opcional (detenido) |
 
