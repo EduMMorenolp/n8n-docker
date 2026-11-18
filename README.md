@@ -49,16 +49,19 @@ cp ngrok_example.yml ngrok.yml
 1. Regístrate en https://ngrok.com
 2. Obtén tu authtoken desde el dashboard
 3. Reemplaza `YOUR_NGROK_AUTH_TOKEN` en `ngrok.yml`
-4. Inicia los contenedores
+4. Inicia ngrok cuando lo necesites:
+   ```bash
+   docker-compose --profile ngrok up -d ngrok
+   ```
 
 ## 🌐 Accesos
 
-| Servicio | URL Local | Puerto |
-|----------|-----------|--------|
-| n8n | http://localhost:5678 | 5678 |
-| PostgreSQL | localhost:5433 | 5433 |
-| Sandbox API | http://localhost:3200 | 3200 |
-| ngrok Dashboard | http://localhost:4040 | 4040 |
+| Servicio | URL Local | Puerto | Estado |
+|----------|-----------|--------|--------|
+| n8n | http://localhost:5678 | 5678 | Activo |
+| PostgreSQL | localhost:5433 | 5433 | Activo |
+| Sandbox API | http://localhost:3200 | 3200 | Activo |
+| ngrok Dashboard | http://localhost:4040 | 4040 | Opcional (detenido) |
 
 ## 📋 Estructura del proyecto
 

@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo ========================================
-echo    Iniciando n8n + PostgreSQL + ngrok + Sandbox
+echo    Iniciando n8n + PostgreSQL + Sandbox
 echo ========================================
 echo.
 
@@ -14,10 +14,9 @@ if %ERRORLEVEL% EQU 0 (
     echo 📱 Accesos:
     echo    - n8n local:      http://localhost:5678
     echo    - Sandbox API:    http://localhost:3200
-    echo    - ngrok dashboard: http://localhost:4040
     echo.
-    echo 🔗 Para obtener la URL publica:
-    echo    Visita http://localhost:4040 y copia la URL HTTPS
+    echo ℹ️ ngrok esta detenido por defecto. Para iniciarlo cuando configures ngrok.yml:
+    echo    docker-compose --profile ngrok up -d ngrok
     echo.
 ) else (
     echo.
